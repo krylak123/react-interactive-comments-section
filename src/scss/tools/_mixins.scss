@@ -8,7 +8,7 @@
     $key: $orientation,
   );
   @if ($size and $structure) {
-    @media screen and #{$size} and #{$structure} {
+    @media screen and (#{$size}) and (#{$structure}) {
       @content;
     }
   } @else {

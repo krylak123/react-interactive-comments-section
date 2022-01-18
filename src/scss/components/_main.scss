@@ -1,0 +1,9 @@
+.main {
+  height: 100vh;
+  background-color: $color-neutral-light-gray;
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+  }
+}

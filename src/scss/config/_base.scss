@@ -10,3 +10,9 @@ html {
   font-family: $font-family-default;
   font-size: $font-size-default;
 }
+
+.container {
+  margin: 0 auto;
+  max-width: 800px;
+  height: 100%;
+}

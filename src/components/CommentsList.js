@@ -8,11 +8,7 @@ const CommentsList = () => {
 
   const commentsMap = comments.map((item) => <Comment key={item.id} {...item} />);
 
-  return (
-    <section className="commentsList">
-      <ul className="commentsList__list">{commentsMap}</ul>
-    </section>
-  );
+  return <ul className="commentsList">{commentsMap}</ul>;
 };
 
 export default CommentsList;

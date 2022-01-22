@@ -30,6 +30,16 @@
     margin-bottom: 10px;
   }
 
+  &__avatar-container {
+    display: flex;
+    margin-right: 10px;
+    width: 30px;
+  }
+
+  &__avatar {
+    width: 100%;
+  }
+
   &__name {
     margin-right: 5px;
     font-weight: bold;

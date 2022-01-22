@@ -1,3 +1,5 @@
+/* eslint-disable global-require */
+/* eslint-disable import/no-dynamic-require */
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
@@ -11,6 +13,7 @@ import IconDelete from '../images/icon-delete.svg';
 
 const Comment = ({ id, user, createdAt, score, content, replies }) => {
   const { currentUser } = useContext(AppContext);
+  const avatarImage = require(`../images/avatars/image-${user.username}.png`);
 
   const repliesMap = replies.map((item) => <Reply key={item.id} parentID={id} {...item} />);
 
@@ -18,6 +21,9 @@ const Comment = ({ id, user, createdAt, score, content, replies }) => {
     <>
       <li className="comment">
         <div className="comment__title-container">
+          <div className="comment__avatar-container">
+            <img src={avatarImage} alt="your avatar" className="comment__avatar" />
+          </div>
           <p className="comment__name">{user.username}</p>
           {user.username === currentUser.username ? (
             <p className="comment__signature">you</p>

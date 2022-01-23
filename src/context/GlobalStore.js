@@ -1,7 +1,7 @@
 import React, { createContext, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import reducerComment from './reducerComments';
+import reducerComment, { commentActions } from './reducerComments';
 
 import DATA from '../data/data.json';
 
@@ -11,11 +11,21 @@ const GlobalStore = ({ children }) => {
   const [comments, dispatch] = useReducer(reducerComment, [...DATA.comments]);
   const [currentUser, setCurrentUser] = useState(DATA.currentUser);
 
+  const commentADD = (comment) => {
+    dispatch({ type: commentActions.COMMENT_ADD, payload: { comment } });
+  };
+
+  const replyADD = (parentID, reply) => {
+    dispatch({ type: commentActions.REPLY_ADD, payload: { parentID, reply } });
+  };
+
   return (
     <AppContext.Provider
       value={{
         comments,
         currentUser,
+        commentADD,
+        replyADD,
       }}
     >
       {children}

@@ -8,6 +8,14 @@
   border-radius: 5px;
   background-color: $color-neutral-white;
 
+  &--type {
+    margin: 0 0 10px;
+  }
+
+  &--reply {
+    width: 90%;
+  }
+
   &__textarea {
     grid-area: 1/1/2/-1;
     margin-bottom: 10px;

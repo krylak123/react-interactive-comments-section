@@ -1,11 +1,12 @@
 /* eslint-disable global-require */
 /* eslint-disable import/no-dynamic-require */
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { AppContext } from '../context/GlobalStore';
 
 import Reply from './Reply';
+import Form from './Form';
 
 import IconReply from '../images/icon-reply.svg';
 import IconEdit from '../images/icon-edit.svg';
@@ -13,7 +14,20 @@ import IconDelete from '../images/icon-delete.svg';
 
 const Comment = ({ id, user, createdAt, score, content, replies }) => {
   const { currentUser } = useContext(AppContext);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const avatarImage = require(`../images/avatars/image-${user.username}.png`);
+
+  const handleOnClickReply = () => {
+    setIsFormOpen((prevValue) => !prevValue);
+  };
+
+  const handleOnClickEdit = () => {
+    console.log('edit');
+  };
+
+  const handleOnClickDelete = () => {
+    console.log('delete');
+  };
 
   const repliesMap = replies.map((item) => <Reply key={item.id} parentID={id} {...item} />);
 
@@ -65,23 +79,36 @@ const Comment = ({ id, user, createdAt, score, content, replies }) => {
         <div className="comment__btn-container">
           {user.username === currentUser.username ? (
             <>
-              <button type="button" className="comment__btn comment__btn--delete">
+              <button
+                type="button"
+                className="comment__btn comment__btn--delete"
+                onClick={handleOnClickDelete}
+              >
                 <img src={IconDelete} alt="" className="comment__btn-icon" />
                 Delete
               </button>
-              <button type="button" className="comment__btn comment__btn--edit">
+              <button
+                type="button"
+                className="comment__btn comment__btn--edit"
+                onClick={handleOnClickEdit}
+              >
                 <img src={IconEdit} alt="" className="comment__btn-icon" />
                 Edit
               </button>
             </>
           ) : (
-            <button type="button" className="comment__btn comment__btn--reply">
+            <button
+              type="button"
+              className="comment__btn comment__btn--reply"
+              onClick={handleOnClickReply}
+            >
               <img src={IconReply} alt="" className="comment__btn-icon" />
               Reply
             </button>
           )}
         </div>
       </li>
+      {isFormOpen && <Form type="reply" changeVision={setIsFormOpen} user={user} parentID={id} />}
       {repliesMap}
     </>
   );

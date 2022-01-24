@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { AppContext } from '../context/GlobalStore';
 
 import Form from './Form';
+import PopupDelete from './PopupDelete';
 
 import IconReply from '../images/icon-reply.svg';
 import IconEdit from '../images/icon-edit.svg';
@@ -14,6 +15,7 @@ import IconDelete from '../images/icon-delete.svg';
 const Reply = ({ parentID, id, user, createdAt, score, content, replyingTo }) => {
   const { currentUser } = useContext(AppContext);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const avatarImage = require(`../images/avatars/image-${user.username}.png`);
 
   const handleOnClickReply = () => {
@@ -25,7 +27,7 @@ const Reply = ({ parentID, id, user, createdAt, score, content, replyingTo }) =>
   };
 
   const handleOnClickDelete = () => {
-    console.log('delete');
+    setIsDeleteOpen(true);
   };
 
   return (
@@ -112,6 +114,7 @@ const Reply = ({ parentID, id, user, createdAt, score, content, replyingTo }) =>
       {isFormOpen && (
         <Form type="reply" changeVision={setIsFormOpen} user={user} isReply parentID={parentID} />
       )}
+      {isDeleteOpen && <PopupDelete handleOnClose={setIsDeleteOpen} isOpen={isDeleteOpen} />}
     </>
   );
 };

@@ -7,6 +7,7 @@ import { AppContext } from '../context/GlobalStore';
 
 import Reply from './Reply';
 import Form from './Form';
+import PopupDelete from './PopupDelete';
 
 import IconReply from '../images/icon-reply.svg';
 import IconEdit from '../images/icon-edit.svg';
@@ -15,6 +16,7 @@ import IconDelete from '../images/icon-delete.svg';
 const Comment = ({ id, user, createdAt, score, content, replies }) => {
   const { currentUser } = useContext(AppContext);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const avatarImage = require(`../images/avatars/image-${user.username}.png`);
 
   const handleOnClickReply = () => {
@@ -26,7 +28,7 @@ const Comment = ({ id, user, createdAt, score, content, replies }) => {
   };
 
   const handleOnClickDelete = () => {
-    console.log('delete');
+    setIsDeleteOpen(true);
   };
 
   const repliesMap = replies.map((item) => <Reply key={item.id} parentID={id} {...item} />);
@@ -110,6 +112,7 @@ const Comment = ({ id, user, createdAt, score, content, replies }) => {
       </li>
       {isFormOpen && <Form type="reply" changeVision={setIsFormOpen} user={user} parentID={id} />}
       {repliesMap}
+      {isDeleteOpen && <PopupDelete handleOnClose={setIsDeleteOpen} isOpen={isDeleteOpen} />}
     </>
   );
 };

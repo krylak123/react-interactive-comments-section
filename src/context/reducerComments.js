@@ -10,7 +10,6 @@ const handleCommentAdd = (state, payload) => {
 };
 
 const handleReplyAdd = (state, payload) => {
-  console.log(payload.parentID, payload.reply);
   const newState = state;
 
   newState.forEach((item) => {

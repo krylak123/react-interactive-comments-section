@@ -19,6 +19,14 @@ const GlobalStore = ({ children }) => {
     dispatch({ type: commentActions.REPLY_ADD, payload: { parentID, reply } });
   };
 
+  const commentDELETE = (id) => {
+    dispatch({ type: commentActions.COMMENT_DELETE, payload: { id } });
+  };
+
+  const replyDELETE = (parentID, id) => {
+    dispatch({ type: commentActions.REPLY_DELETE, payload: { parentID, id } });
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -26,6 +34,8 @@ const GlobalStore = ({ children }) => {
         currentUser,
         commentADD,
         replyADD,
+        commentDELETE,
+        replyDELETE,
       }}
     >
       {children}

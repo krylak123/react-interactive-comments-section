@@ -13,7 +13,7 @@ import IconEdit from '../images/icon-edit.svg';
 import IconDelete from '../images/icon-delete.svg';
 
 const Reply = ({ parentID, id, user, createdAt, score, content, replyingTo }) => {
-  const { currentUser } = useContext(AppContext);
+  const { currentUser, replyDELETE } = useContext(AppContext);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const avatarImage = require(`../images/avatars/image-${user.username}.png`);
@@ -114,7 +114,15 @@ const Reply = ({ parentID, id, user, createdAt, score, content, replyingTo }) =>
       {isFormOpen && (
         <Form type="reply" changeVision={setIsFormOpen} user={user} isReply parentID={parentID} />
       )}
-      {isDeleteOpen && <PopupDelete handleOnClose={setIsDeleteOpen} isOpen={isDeleteOpen} />}
+      {isDeleteOpen && (
+        <PopupDelete
+          handleOnClose={setIsDeleteOpen}
+          isOpen={isDeleteOpen}
+          handleDelete={replyDELETE}
+          id={id}
+          parentID={parentID}
+        />
+      )}
     </>
   );
 };

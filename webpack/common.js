@@ -29,7 +29,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: 'public/index.html',
       inject: 'body',
-      title: 'Page Title',
+      title: 'Interactive comments section',
     }),
     new FaviconsWebpackPlugin({
       logo: './public/favicon.png',

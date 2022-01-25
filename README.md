@@ -16,11 +16,20 @@
 - React Hooks
 - SCSS
 
+## Features
+
+List the ready features here:
+
+- adding comments
+- adding replies to comments/replies
+- deleting comments/replies
+- popup after click "delete" to confirm deleting
+
 ## Room for Improvement
 
 To do:
 
-- handle editing comments and replies
+- handle editing own comments and replies
 - handle adding ratings
 
 ## Project Status

@@ -7,62 +7,62 @@ export const commentActions = {
   REPLY_EDIT: 'REPLY_EDIT',
 };
 
-const handleCommentAdd = (state, payload) => {
-  const newState = [...state, payload.comment];
+const handleCommentAdd = (state, { comment }) => {
+  const newState = [...state, comment];
 
   return newState;
 };
 
-const handleReplyAdd = (state, payload) => {
+const handleReplyAdd = (state, { parentID, reply }) => {
   const newState = state;
 
   newState.forEach((item) => {
-    if (item.id === payload.parentID) {
-      item.replies.push(payload.reply);
+    if (item.id === parentID) {
+      item.replies.push(reply);
     }
   });
 
   return [...newState];
 };
 
-const handleCommentDelete = (state, payload) => {
-  const newState = state.filter((item) => item.id !== payload.id);
+const handleCommentDelete = (state, { id }) => {
+  const newState = state.filter((item) => item.id !== id);
 
   return newState;
 };
 
-const handleReplyDelete = (state, payload) => {
+const handleReplyDelete = (state, { parentID, id }) => {
   const newState = state;
 
   newState.forEach((item) => {
-    if (item.id === payload.parentID) {
-      item.replies = item.replies.filter((reply) => reply.id !== payload.id);
+    if (item.id === parentID) {
+      item.replies = item.replies.filter((reply) => reply.id !== id);
     }
   });
 
   return [...newState];
 };
 
-const handleCommentEdit = (state, payload) => {
+const handleCommentEdit = (state, { id, newContent }) => {
   const newState = state;
 
   newState.forEach((item) => {
-    if (item.id === payload.id) {
-      item.content = payload.newContent;
+    if (item.id === id) {
+      item.content = newContent;
     }
   });
 
   return [...newState];
 };
 
-const handleReplyEdit = (state, payload) => {
+const handleReplyEdit = (state, { parentID, id, newContent }) => {
   const newState = state;
 
   newState.forEach((item) => {
-    if (item.id === payload.parentID) {
+    if (item.id === parentID) {
       item.replies.forEach((reply) => {
-        if (reply.id === payload.id) {
-          reply.content = payload.newContent;
+        if (reply.id === id) {
+          reply.content = newContent;
         }
       });
     }

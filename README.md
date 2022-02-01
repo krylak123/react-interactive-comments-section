@@ -22,14 +22,14 @@ List the ready features here:
 
 - adding comments
 - adding replies to comments/replies
-- deleting comments/replies
+- editing own comments and replies
+- deleting own comments/replies
 - popup after click "delete" to confirm deleting
 
 ## Room for Improvement
 
 To do:
 
-- handle editing own comments and replies
 - handle adding ratings
 
 ## Project Status

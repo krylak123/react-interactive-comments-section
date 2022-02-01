@@ -16,6 +16,7 @@ import IconDelete from '../images/icon-delete.svg';
 const Comment = ({ id, user, createdAt, score, content, replies }) => {
   const { currentUser, commentDELETE } = useContext(AppContext);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const avatarImage = require(`../images/avatars/image-${user.username}.png`);
 
@@ -24,7 +25,7 @@ const Comment = ({ id, user, createdAt, score, content, replies }) => {
   };
 
   const handleOnClickEdit = () => {
-    console.log('edit');
+    setIsEditOpen((prevValue) => !prevValue);
   };
 
   const handleOnClickDelete = () => {
@@ -47,7 +48,18 @@ const Comment = ({ id, user, createdAt, score, content, replies }) => {
           <p className="comment__time">{createdAt}</p>
         </div>
         <div className="comment__content-container">
-          <p className="comment__content">{content}</p>
+          {!isEditOpen ? (
+            <p className="comment__content">{content}</p>
+          ) : (
+            <Form
+              type="update"
+              changeVision={setIsEditOpen}
+              user={user}
+              isReply
+              parentID={id}
+              prevContent={content}
+            />
+          )}
         </div>
         <div className="comment__score-container">
           <button type="button" className="comment__score-btn">

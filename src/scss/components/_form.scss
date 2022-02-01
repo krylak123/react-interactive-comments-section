@@ -16,6 +16,10 @@
     width: 90%;
   }
 
+  &--edit {
+    width: 100%;
+  }
+
   &__textarea {
     grid-area: 1/1/2/-1;
     margin-bottom: 10px;
@@ -60,9 +64,17 @@
     align-items: start;
     padding: 20px;
 
+    &--edit {
+      padding-left: 0;
+    }
+
     &__textarea {
       grid-area: 1/2/2/3;
       margin: 0 20px;
+
+      &--edit {
+        margin-left: 0;
+      }
     }
 
     &__avatar-container {

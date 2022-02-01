@@ -3,6 +3,8 @@ export const commentActions = {
   REPLY_ADD: 'REPLY_ADD',
   COMMENT_DELETE: 'COMMENT_DELETE',
   REPLY_DELETE: 'REPLY_DELETE',
+  COMMENT_EDIT: 'COMMENT_EDIT',
+  REPLY_EDIT: 'REPLY_EDIT',
 };
 
 const handleCommentAdd = (state, payload) => {
@@ -41,6 +43,34 @@ const handleReplyDelete = (state, payload) => {
   return [...newState];
 };
 
+const handleCommentEdit = (state, payload) => {
+  const newState = state;
+
+  newState.forEach((item) => {
+    if (item.id === payload.id) {
+      item.content = payload.newContent;
+    }
+  });
+
+  return [...newState];
+};
+
+const handleReplyEdit = (state, payload) => {
+  const newState = state;
+
+  newState.forEach((item) => {
+    if (item.id === payload.parentID) {
+      item.replies.forEach((reply) => {
+        if (reply.id === payload.id) {
+          reply.content = payload.newContent;
+        }
+      });
+    }
+  });
+
+  return [...newState];
+};
+
 const reducerComment = (state, action) => {
   switch (action.type) {
     case commentActions.COMMENT_ADD:
@@ -54,6 +84,12 @@ const reducerComment = (state, action) => {
 
     case commentActions.REPLY_DELETE:
       return handleReplyDelete(state, action.payload);
+
+    case commentActions.COMMENT_EDIT:
+      return handleCommentEdit(state, action.payload);
+
+    case commentActions.REPLY_EDIT:
+      return handleReplyEdit(state, action.payload);
 
     default:
       return state;

@@ -4,9 +4,9 @@ import classNames from 'classnames';
 
 import { AppContext } from '../context/GlobalStore';
 
-const Form = ({ type, changeVision, user, parentID, isReply }) => {
-  const { currentUser, commentADD, replyADD } = useContext(AppContext);
-  const [inputValue, setInputValue] = useState('');
+const Form = ({ type, changeVision, user, parentID, replyID, isReply, prevContent }) => {
+  const { currentUser, commentADD, replyADD, commentEDIT, replyEDIT } = useContext(AppContext);
+  const [inputValue, setInputValue] = useState(prevContent);
   const avatarImage = require(`../images/avatars/image-${currentUser.username}.png`);
 
   const handleOnSubmit = (e) => {
@@ -32,6 +32,12 @@ const Form = ({ type, changeVision, user, parentID, isReply }) => {
             username: currentUser.username,
           },
         });
+        changeVision(false);
+        break;
+
+      case 'update':
+        if (replyID) replyEDIT(parentID, replyID, content);
+        else commentEDIT(parentID, content);
         changeVision(false);
         break;
 
@@ -63,17 +69,24 @@ const Form = ({ type, changeVision, user, parentID, isReply }) => {
   return (
     <form
       onSubmit={handleOnSubmit}
-      className={classNames('form', { 'form--type': type, 'form--reply': isReply })}
+      className={classNames('form', {
+        'form--type': type,
+        'form--reply': isReply,
+        'form--edit': prevContent,
+      })}
     >
       <textarea
-        className="form__textarea"
+        // className="form__textarea"
+        className={classNames('form__textarea', { 'form__textarea--edit': prevContent })}
         placeholder="Add a comment..."
         value={inputValue}
         onChange={handleOnChange}
       />
-      <div className="form__avatar-container">
-        <img src={avatarImage} alt="your avatar" className="form__avatar" />
-      </div>
+      {type !== 'update' ? (
+        <div className="form__avatar-container">
+          <img src={avatarImage} alt="your avatar" className="form__avatar" />
+        </div>
+      ) : null}
       <button type="submit" className="form__btn">
         {type || 'send'}
       </button>
@@ -86,7 +99,9 @@ Form.propTypes = {
   changeVision: PropTypes.func,
   user: PropTypes.objectOf(Object),
   parentID: PropTypes.number,
+  replyID: PropTypes.number,
   isReply: PropTypes.bool,
+  prevContent: PropTypes.string,
 };
 
 Form.defaultProps = {
@@ -94,7 +109,9 @@ Form.defaultProps = {
   changeVision: undefined,
   user: undefined,
   parentID: undefined,
+  replyID: undefined,
   isReply: undefined,
+  prevContent: '',
 };
 
 export default Form;

@@ -30,37 +30,74 @@ var commentActions = {
   COMMENT_ADD: 'COMMENT_ADD',
   REPLY_ADD: 'REPLY_ADD',
   COMMENT_DELETE: 'COMMENT_DELETE',
-  REPLY_DELETE: 'REPLY_DELETE'
+  REPLY_DELETE: 'REPLY_DELETE',
+  COMMENT_EDIT: 'COMMENT_EDIT',
+  REPLY_EDIT: 'REPLY_EDIT'
 };
 
-var handleCommentAdd = function handleCommentAdd(state, payload) {
-  var newState = [].concat(_toConsumableArray(state), [payload.comment]);
+var handleCommentAdd = function handleCommentAdd(state, _ref) {
+  var comment = _ref.comment;
+  var newState = [].concat(_toConsumableArray(state), [comment]);
   return newState;
 };
 
-var handleReplyAdd = function handleReplyAdd(state, payload) {
+var handleReplyAdd = function handleReplyAdd(state, _ref2) {
+  var parentID = _ref2.parentID,
+      reply = _ref2.reply;
   var newState = state;
   newState.forEach(function (item) {
-    if (item.id === payload.parentID) {
-      item.replies.push(payload.reply);
+    if (item.id === parentID) {
+      item.replies.push(reply);
     }
   });
   return _toConsumableArray(newState);
 };
 
-var handleCommentDelete = function handleCommentDelete(state, payload) {
+var handleCommentDelete = function handleCommentDelete(state, _ref3) {
+  var id = _ref3.id;
   var newState = state.filter(function (item) {
-    return item.id !== payload.id;
+    return item.id !== id;
   });
   return newState;
 };
 
-var handleReplyDelete = function handleReplyDelete(state, payload) {
+var handleReplyDelete = function handleReplyDelete(state, _ref4) {
+  var parentID = _ref4.parentID,
+      id = _ref4.id;
   var newState = state;
   newState.forEach(function (item) {
-    if (item.id === payload.parentID) {
+    if (item.id === parentID) {
       item.replies = item.replies.filter(function (reply) {
-        return reply.id !== payload.id;
+        return reply.id !== id;
+      });
+    }
+  });
+  return _toConsumableArray(newState);
+};
+
+var handleCommentEdit = function handleCommentEdit(state, _ref5) {
+  var id = _ref5.id,
+      newContent = _ref5.newContent;
+  var newState = state;
+  newState.forEach(function (item) {
+    if (item.id === id) {
+      item.content = newContent;
+    }
+  });
+  return _toConsumableArray(newState);
+};
+
+var handleReplyEdit = function handleReplyEdit(state, _ref6) {
+  var parentID = _ref6.parentID,
+      id = _ref6.id,
+      newContent = _ref6.newContent;
+  var newState = state;
+  newState.forEach(function (item) {
+    if (item.id === parentID) {
+      item.replies.forEach(function (reply) {
+        if (reply.id === id) {
+          reply.content = newContent;
+        }
       });
     }
   });
@@ -80,6 +117,12 @@ var reducerComment = function reducerComment(state, action) {
 
     case commentActions.REPLY_DELETE:
       return handleReplyDelete(state, action.payload);
+
+    case commentActions.COMMENT_EDIT:
+      return handleCommentEdit(state, action.payload);
+
+    case commentActions.REPLY_EDIT:
+      return handleReplyEdit(state, action.payload);
 
     default:
       return state;
@@ -167,6 +210,27 @@ var GlobalStore = function GlobalStore(_ref) {
     });
   };
 
+  var commentEDIT = function commentEDIT(id, newContent) {
+    dispatch({
+      type: commentActions.COMMENT_EDIT,
+      payload: {
+        id: id,
+        newContent: newContent
+      }
+    });
+  };
+
+  var replyEDIT = function replyEDIT(parentID, id, newContent) {
+    dispatch({
+      type: commentActions.REPLY_EDIT,
+      payload: {
+        parentID: parentID,
+        id: id,
+        newContent: newContent
+      }
+    });
+  };
+
   return /*#__PURE__*/react.createElement(AppContext.Provider, {
     value: {
       comments: comments,
@@ -174,7 +238,9 @@ var GlobalStore = function GlobalStore(_ref) {
       commentADD: commentADD,
       replyADD: replyADD,
       commentDELETE: commentDELETE,
-      replyDELETE: replyDELETE
+      replyDELETE: replyDELETE,
+      commentEDIT: commentEDIT,
+      replyEDIT: replyEDIT
     }
   }, children);
 };
@@ -209,14 +275,18 @@ var Form = function Form(_ref) {
       changeVision = _ref.changeVision,
       user = _ref.user,
       parentID = _ref.parentID,
-      isReply = _ref.isReply;
+      replyID = _ref.replyID,
+      isReply = _ref.isReply,
+      prevContent = _ref.prevContent;
 
   var _useContext = (0,react.useContext)(AppContext),
       currentUser = _useContext.currentUser,
       commentADD = _useContext.commentADD,
-      replyADD = _useContext.replyADD;
+      replyADD = _useContext.replyADD,
+      commentEDIT = _useContext.commentEDIT,
+      replyEDIT = _useContext.replyEDIT;
 
-  var _useState = (0,react.useState)(''),
+  var _useState = (0,react.useState)(prevContent),
       _useState2 = Form_slicedToArray(_useState, 2),
       inputValue = _useState2[0],
       setInputValue = _useState2[1];
@@ -244,6 +314,11 @@ var Form = function Form(_ref) {
             username: currentUser.username
           }
         });
+        changeVision(false);
+        break;
+
+      case 'update':
+        if (replyID) replyEDIT(parentID, replyID, content);else commentEDIT(parentID, content);
         changeVision(false);
         break;
 
@@ -276,20 +351,24 @@ var Form = function Form(_ref) {
     onSubmit: handleOnSubmit,
     className: classnames_default()('form', {
       'form--type': type,
-      'form--reply': isReply
+      'form--reply': isReply,
+      'form--edit': prevContent
     })
   }, /*#__PURE__*/react.createElement("textarea", {
-    className: "form__textarea",
+    // className="form__textarea"
+    className: classnames_default()('form__textarea', {
+      'form__textarea--edit': prevContent
+    }),
     placeholder: "Add a comment...",
     value: inputValue,
     onChange: handleOnChange
-  }), /*#__PURE__*/react.createElement("div", {
+  }), type !== 'update' ? /*#__PURE__*/react.createElement("div", {
     className: "form__avatar-container"
   }, /*#__PURE__*/react.createElement("img", {
     src: avatarImage,
     alt: "your avatar",
     className: "form__avatar"
-  })), /*#__PURE__*/react.createElement("button", {
+  })) : null, /*#__PURE__*/react.createElement("button", {
     type: "submit",
     className: "form__btn"
   }, type || 'send'));
@@ -300,14 +379,18 @@ Form.propTypes = {
   changeVision: (prop_types_default()).func,
   user: prop_types_default().objectOf(Object),
   parentID: (prop_types_default()).number,
-  isReply: (prop_types_default()).bool
+  replyID: (prop_types_default()).number,
+  isReply: (prop_types_default()).bool,
+  prevContent: (prop_types_default()).string
 };
 Form.defaultProps = {
   type: undefined,
   changeVision: undefined,
   user: undefined,
   parentID: undefined,
-  isReply: undefined
+  replyID: undefined,
+  isReply: undefined,
+  prevContent: ''
 };
 /* harmony default export */ var components_Form = (Form);
 ;// CONCATENATED MODULE: ./src/components/Modal.js
@@ -438,8 +521,13 @@ var Reply = function Reply(_ref) {
 
   var _useState3 = (0,react.useState)(false),
       _useState4 = Reply_slicedToArray(_useState3, 2),
-      isDeleteOpen = _useState4[0],
-      setIsDeleteOpen = _useState4[1];
+      isEditOpen = _useState4[0],
+      setIsEditOpen = _useState4[1];
+
+  var _useState5 = (0,react.useState)(false),
+      _useState6 = Reply_slicedToArray(_useState5, 2),
+      isDeleteOpen = _useState6[0],
+      setIsDeleteOpen = _useState6[1];
 
   var avatarImage = __webpack_require__(598)("./image-".concat(user.username, ".png"));
 
@@ -450,7 +538,9 @@ var Reply = function Reply(_ref) {
   };
 
   var handleOnClickEdit = function handleOnClickEdit() {
-    console.log('edit');
+    setIsEditOpen(function (prevValue) {
+      return !prevValue;
+    });
   };
 
   var handleOnClickDelete = function handleOnClickDelete() {
@@ -475,11 +565,19 @@ var Reply = function Reply(_ref) {
     className: "comment__time"
   }, createdAt)), /*#__PURE__*/react.createElement("div", {
     className: "comment__content-container"
-  }, /*#__PURE__*/react.createElement("p", {
+  }, !isEditOpen ? /*#__PURE__*/react.createElement("p", {
     className: "comment__content"
   }, ' ', /*#__PURE__*/react.createElement("span", {
     className: "comment__content-user"
-  }, "@".concat(replyingTo, " ")), content)), /*#__PURE__*/react.createElement("div", {
+  }, "@".concat(replyingTo, " ")), content) : /*#__PURE__*/react.createElement(components_Form, {
+    type: "update",
+    changeVision: setIsEditOpen,
+    user: user,
+    isReply: true,
+    parentID: parentID,
+    replyID: id,
+    prevContent: content
+  })), /*#__PURE__*/react.createElement("div", {
     className: "comment__score-container"
   }, /*#__PURE__*/react.createElement("button", {
     type: "button",
@@ -603,8 +701,13 @@ var Comment = function Comment(_ref) {
 
   var _useState3 = (0,react.useState)(false),
       _useState4 = Comment_slicedToArray(_useState3, 2),
-      isDeleteOpen = _useState4[0],
-      setIsDeleteOpen = _useState4[1];
+      isEditOpen = _useState4[0],
+      setIsEditOpen = _useState4[1];
+
+  var _useState5 = (0,react.useState)(false),
+      _useState6 = Comment_slicedToArray(_useState5, 2),
+      isDeleteOpen = _useState6[0],
+      setIsDeleteOpen = _useState6[1];
 
   var avatarImage = __webpack_require__(598)("./image-".concat(user.username, ".png"));
 
@@ -615,7 +718,9 @@ var Comment = function Comment(_ref) {
   };
 
   var handleOnClickEdit = function handleOnClickEdit() {
-    console.log('edit');
+    setIsEditOpen(function (prevValue) {
+      return !prevValue;
+    });
   };
 
   var handleOnClickDelete = function handleOnClickDelete() {
@@ -646,9 +751,16 @@ var Comment = function Comment(_ref) {
     className: "comment__time"
   }, createdAt)), /*#__PURE__*/react.createElement("div", {
     className: "comment__content-container"
-  }, /*#__PURE__*/react.createElement("p", {
+  }, !isEditOpen ? /*#__PURE__*/react.createElement("p", {
     className: "comment__content"
-  }, content)), /*#__PURE__*/react.createElement("div", {
+  }, content) : /*#__PURE__*/react.createElement(components_Form, {
+    type: "update",
+    changeVision: setIsEditOpen,
+    user: user,
+    isReply: true,
+    parentID: id,
+    prevContent: content
+  })), /*#__PURE__*/react.createElement("div", {
     className: "comment__score-container"
   }, /*#__PURE__*/react.createElement("button", {
     type: "button",

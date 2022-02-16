@@ -20,16 +20,25 @@ const Comment = ({ id, user, createdAt, score, content, replies }) => {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const avatarImage = require(`../images/avatars/image-${user.username}.png`);
 
-  const handleOnClickReply = () => {
-    setIsFormOpen((prevValue) => !prevValue);
-  };
+  const handleOnClick = (e) => {
+    const { name } = e.currentTarget;
 
-  const handleOnClickEdit = () => {
-    setIsEditOpen((prevValue) => !prevValue);
-  };
+    switch (name) {
+      case 'reply':
+        setIsFormOpen((prevValue) => !prevValue);
+        break;
 
-  const handleOnClickDelete = () => {
-    setIsDeleteOpen(true);
+      case 'edit':
+        setIsEditOpen((prevValue) => !prevValue);
+        break;
+
+      case 'delete':
+        setIsDeleteOpen(true);
+        break;
+
+      default:
+        break;
+    }
   };
 
   const repliesMap = replies.map((item) => <Reply key={item.id} parentID={id} {...item} />);
@@ -95,16 +104,18 @@ const Comment = ({ id, user, createdAt, score, content, replies }) => {
             <>
               <button
                 type="button"
+                name="delete"
                 className="comment__btn comment__btn--delete"
-                onClick={handleOnClickDelete}
+                onClick={handleOnClick}
               >
                 <img src={IconDelete} alt="" className="comment__btn-icon" />
                 Delete
               </button>
               <button
                 type="button"
+                name="edit"
                 className="comment__btn comment__btn--edit"
-                onClick={handleOnClickEdit}
+                onClick={handleOnClick}
               >
                 <img src={IconEdit} alt="" className="comment__btn-icon" />
                 Edit
@@ -113,8 +124,9 @@ const Comment = ({ id, user, createdAt, score, content, replies }) => {
           ) : (
             <button
               type="button"
+              name="reply"
               className="comment__btn comment__btn--reply"
-              onClick={handleOnClickReply}
+              onClick={handleOnClick}
             >
               <img src={IconReply} alt="" className="comment__btn-icon" />
               Reply

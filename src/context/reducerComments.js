@@ -5,6 +5,8 @@ export const commentActions = {
   REPLY_DELETE: 'REPLY_DELETE',
   COMMENT_EDIT: 'COMMENT_EDIT',
   REPLY_EDIT: 'REPLY_EDIT',
+  COMMENT_VOTE: 'COMMENT_VOTE',
+  REPLY_VOTE: 'REPLY_VOTE',
 };
 
 const handleCommentAdd = (state, { comment }) => {
@@ -71,6 +73,36 @@ const handleReplyEdit = (state, { parentID, id, newContent }) => {
   return [...newState];
 };
 
+const handleCommentVote = (state, { id, typeVote }) => {
+  const newState = state;
+
+  newState.forEach((item) => {
+    if (item.id === id) {
+      if (typeVote === 'up') item.score += 1;
+      else if (typeVote === 'down') item.score -= 1;
+    }
+  });
+
+  return [...newState];
+};
+
+const handleReplyVote = (state, { parentID, id, typeVote }) => {
+  const newState = state;
+
+  newState.forEach((item) => {
+    if (item.id === parentID) {
+      item.replies.forEach((reply) => {
+        if (reply.id === id) {
+          if (typeVote === 'up') reply.score += 1;
+          else if (typeVote === 'down') reply.score -= 1;
+        }
+      });
+    }
+  });
+
+  return [...newState];
+};
+
 const reducerComment = (state, action) => {
   switch (action.type) {
     case commentActions.COMMENT_ADD:
@@ -90,6 +122,12 @@ const reducerComment = (state, action) => {
 
     case commentActions.REPLY_EDIT:
       return handleReplyEdit(state, action.payload);
+
+    case commentActions.COMMENT_VOTE:
+      return handleCommentVote(state, action.payload);
+
+    case commentActions.REPLY_VOTE:
+      return handleReplyVote(state, action.payload);
 
     default:
       return state;

@@ -13,7 +13,7 @@ import IconEdit from '../images/icon-edit.svg';
 import IconDelete from '../images/icon-delete.svg';
 
 const Reply = ({ parentID, id, user, createdAt, score, content, replyingTo }) => {
-  const { currentUser, replyDELETE } = useContext(AppContext);
+  const { currentUser, replyDELETE, replyVOTE } = useContext(AppContext);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -33,6 +33,14 @@ const Reply = ({ parentID, id, user, createdAt, score, content, replyingTo }) =>
 
       case 'delete':
         setIsDeleteOpen(true);
+        break;
+
+      case 'upVote':
+        replyVOTE(parentID, id, 'up');
+        break;
+
+      case 'downVote':
+        replyVOTE(parentID, id, 'down');
         break;
 
       default:
@@ -73,7 +81,12 @@ const Reply = ({ parentID, id, user, createdAt, score, content, replyingTo }) =>
           )}
         </div>
         <div className="comment__score-container">
-          <button type="button" className="comment__score-btn">
+          <button
+            type="button"
+            name="upVote"
+            className="comment__score-btn"
+            onClick={user.username !== currentUser.username ? handleOnClick : null}
+          >
             <svg
               className="comment__score-img"
               width="11"
@@ -87,7 +100,12 @@ const Reply = ({ parentID, id, user, createdAt, score, content, replyingTo }) =>
             </svg>
           </button>
           <p className="comment__score-value">{score}</p>
-          <button type="button" className="comment__score-btn">
+          <button
+            type="button"
+            name="downVote"
+            className="comment__score-btn"
+            onClick={user.username !== currentUser.username ? handleOnClick : null}
+          >
             <svg
               className="comment__score-img"
               width="11"

@@ -32,7 +32,9 @@ var commentActions = {
   COMMENT_DELETE: 'COMMENT_DELETE',
   REPLY_DELETE: 'REPLY_DELETE',
   COMMENT_EDIT: 'COMMENT_EDIT',
-  REPLY_EDIT: 'REPLY_EDIT'
+  REPLY_EDIT: 'REPLY_EDIT',
+  COMMENT_VOTE: 'COMMENT_VOTE',
+  REPLY_VOTE: 'REPLY_VOTE'
 };
 
 var handleCommentAdd = function handleCommentAdd(state, _ref) {
@@ -104,6 +106,35 @@ var handleReplyEdit = function handleReplyEdit(state, _ref6) {
   return _toConsumableArray(newState);
 };
 
+var handleCommentVote = function handleCommentVote(state, _ref7) {
+  var id = _ref7.id,
+      typeVote = _ref7.typeVote;
+  var newState = state;
+  newState.forEach(function (item) {
+    if (item.id === id) {
+      if (typeVote === 'up') item.score += 1;else if (typeVote === 'down') item.score -= 1;
+    }
+  });
+  return _toConsumableArray(newState);
+};
+
+var handleReplyVote = function handleReplyVote(state, _ref8) {
+  var parentID = _ref8.parentID,
+      id = _ref8.id,
+      typeVote = _ref8.typeVote;
+  var newState = state;
+  newState.forEach(function (item) {
+    if (item.id === parentID) {
+      item.replies.forEach(function (reply) {
+        if (reply.id === id) {
+          if (typeVote === 'up') reply.score += 1;else if (typeVote === 'down') reply.score -= 1;
+        }
+      });
+    }
+  });
+  return _toConsumableArray(newState);
+};
+
 var reducerComment = function reducerComment(state, action) {
   switch (action.type) {
     case commentActions.COMMENT_ADD:
@@ -123,6 +154,12 @@ var reducerComment = function reducerComment(state, action) {
 
     case commentActions.REPLY_EDIT:
       return handleReplyEdit(state, action.payload);
+
+    case commentActions.COMMENT_VOTE:
+      return handleCommentVote(state, action.payload);
+
+    case commentActions.REPLY_VOTE:
+      return handleReplyVote(state, action.payload);
 
     default:
       return state;
@@ -231,6 +268,27 @@ var GlobalStore = function GlobalStore(_ref) {
     });
   };
 
+  var commentVOTE = function commentVOTE(id, typeVote) {
+    dispatch({
+      type: commentActions.COMMENT_VOTE,
+      payload: {
+        id: id,
+        typeVote: typeVote
+      }
+    });
+  };
+
+  var replyVOTE = function replyVOTE(parentID, id, typeVote) {
+    dispatch({
+      type: commentActions.REPLY_VOTE,
+      payload: {
+        parentID: parentID,
+        id: id,
+        typeVote: typeVote
+      }
+    });
+  };
+
   return /*#__PURE__*/react.createElement(AppContext.Provider, {
     value: {
       comments: comments,
@@ -240,7 +298,9 @@ var GlobalStore = function GlobalStore(_ref) {
       commentDELETE: commentDELETE,
       replyDELETE: replyDELETE,
       commentEDIT: commentEDIT,
-      replyEDIT: replyEDIT
+      replyEDIT: replyEDIT,
+      commentVOTE: commentVOTE,
+      replyVOTE: replyVOTE
     }
   }, children);
 };
@@ -512,7 +572,8 @@ var Reply = function Reply(_ref) {
 
   var _useContext = (0,react.useContext)(AppContext),
       currentUser = _useContext.currentUser,
-      replyDELETE = _useContext.replyDELETE;
+      replyDELETE = _useContext.replyDELETE,
+      replyVOTE = _useContext.replyVOTE;
 
   var _useState = (0,react.useState)(false),
       _useState2 = Reply_slicedToArray(_useState, 2),
@@ -531,20 +592,37 @@ var Reply = function Reply(_ref) {
 
   var avatarImage = __webpack_require__(598)("./image-".concat(user.username, ".png"));
 
-  var handleOnClickReply = function handleOnClickReply() {
-    setIsFormOpen(function (prevValue) {
-      return !prevValue;
-    });
-  };
+  var handleOnClick = function handleOnClick(e) {
+    var name = e.currentTarget.name;
 
-  var handleOnClickEdit = function handleOnClickEdit() {
-    setIsEditOpen(function (prevValue) {
-      return !prevValue;
-    });
-  };
+    switch (name) {
+      case 'reply':
+        setIsFormOpen(function (prevValue) {
+          return !prevValue;
+        });
+        break;
 
-  var handleOnClickDelete = function handleOnClickDelete() {
-    setIsDeleteOpen(true);
+      case 'edit':
+        setIsEditOpen(function (prevValue) {
+          return !prevValue;
+        });
+        break;
+
+      case 'delete':
+        setIsDeleteOpen(true);
+        break;
+
+      case 'upVote':
+        replyVOTE(parentID, id, 'up');
+        break;
+
+      case 'downVote':
+        replyVOTE(parentID, id, 'down');
+        break;
+
+      default:
+        break;
+    }
   };
 
   return /*#__PURE__*/react.createElement(react.Fragment, null, /*#__PURE__*/react.createElement("li", {
@@ -581,7 +659,9 @@ var Reply = function Reply(_ref) {
     className: "comment__score-container"
   }, /*#__PURE__*/react.createElement("button", {
     type: "button",
-    className: "comment__score-btn"
+    name: "upVote",
+    className: "comment__score-btn",
+    onClick: user.username !== currentUser.username ? handleOnClick : null
   }, /*#__PURE__*/react.createElement("svg", {
     className: "comment__score-img",
     width: "11",
@@ -594,7 +674,9 @@ var Reply = function Reply(_ref) {
     className: "comment__score-value"
   }, score), /*#__PURE__*/react.createElement("button", {
     type: "button",
-    className: "comment__score-btn"
+    name: "downVote",
+    className: "comment__score-btn",
+    onClick: user.username !== currentUser.username ? handleOnClick : null
   }, /*#__PURE__*/react.createElement("svg", {
     className: "comment__score-img",
     width: "11",
@@ -607,24 +689,27 @@ var Reply = function Reply(_ref) {
     className: "comment__btn-container"
   }, user.username === currentUser.username ? /*#__PURE__*/react.createElement(react.Fragment, null, /*#__PURE__*/react.createElement("button", {
     type: "button",
+    name: "delete",
     className: "comment__btn comment__btn--delete",
-    onClick: handleOnClickDelete
+    onClick: handleOnClick
   }, /*#__PURE__*/react.createElement("img", {
     src: icon_delete,
     alt: "",
     className: "comment__btn-icon"
   }), "Delete"), /*#__PURE__*/react.createElement("button", {
     type: "button",
+    name: "edit",
     className: "comment__btn comment__btn--edit",
-    onClick: handleOnClickEdit
+    onClick: handleOnClick
   }, /*#__PURE__*/react.createElement("img", {
     src: icon_edit,
     alt: "",
     className: "comment__btn-icon"
   }), "Edit")) : /*#__PURE__*/react.createElement("button", {
     type: "button",
+    name: "reply",
     className: "comment__btn comment__btn--reply",
-    onClick: handleOnClickReply
+    onClick: handleOnClick
   }, /*#__PURE__*/react.createElement("img", {
     src: icon_reply,
     alt: "",
@@ -692,7 +777,8 @@ var Comment = function Comment(_ref) {
 
   var _useContext = (0,react.useContext)(AppContext),
       currentUser = _useContext.currentUser,
-      commentDELETE = _useContext.commentDELETE;
+      commentDELETE = _useContext.commentDELETE,
+      commentVOTE = _useContext.commentVOTE;
 
   var _useState = (0,react.useState)(false),
       _useState2 = Comment_slicedToArray(_useState, 2),
@@ -711,20 +797,37 @@ var Comment = function Comment(_ref) {
 
   var avatarImage = __webpack_require__(598)("./image-".concat(user.username, ".png"));
 
-  var handleOnClickReply = function handleOnClickReply() {
-    setIsFormOpen(function (prevValue) {
-      return !prevValue;
-    });
-  };
+  var handleOnClick = function handleOnClick(e) {
+    var name = e.currentTarget.name;
 
-  var handleOnClickEdit = function handleOnClickEdit() {
-    setIsEditOpen(function (prevValue) {
-      return !prevValue;
-    });
-  };
+    switch (name) {
+      case 'reply':
+        setIsFormOpen(function (prevValue) {
+          return !prevValue;
+        });
+        break;
 
-  var handleOnClickDelete = function handleOnClickDelete() {
-    setIsDeleteOpen(true);
+      case 'edit':
+        setIsEditOpen(function (prevValue) {
+          return !prevValue;
+        });
+        break;
+
+      case 'delete':
+        setIsDeleteOpen(true);
+        break;
+
+      case 'upVote':
+        commentVOTE(id, 'up');
+        break;
+
+      case 'downVote':
+        commentVOTE(id, 'down');
+        break;
+
+      default:
+        break;
+    }
   };
 
   var repliesMap = replies.map(function (item) {
@@ -764,7 +867,9 @@ var Comment = function Comment(_ref) {
     className: "comment__score-container"
   }, /*#__PURE__*/react.createElement("button", {
     type: "button",
-    className: "comment__score-btn"
+    name: "upVote",
+    className: "comment__score-btn",
+    onClick: user.username !== currentUser.username ? handleOnClick : null
   }, /*#__PURE__*/react.createElement("svg", {
     className: "comment__score-img",
     width: "11",
@@ -777,7 +882,9 @@ var Comment = function Comment(_ref) {
     className: "comment__score-value"
   }, score), /*#__PURE__*/react.createElement("button", {
     type: "button",
-    className: "comment__score-btn"
+    name: "downVote",
+    className: "comment__score-btn",
+    onClick: user.username !== currentUser.username ? handleOnClick : null
   }, /*#__PURE__*/react.createElement("svg", {
     className: "comment__score-img",
     width: "11",
@@ -790,24 +897,27 @@ var Comment = function Comment(_ref) {
     className: "comment__btn-container"
   }, user.username === currentUser.username ? /*#__PURE__*/react.createElement(react.Fragment, null, /*#__PURE__*/react.createElement("button", {
     type: "button",
+    name: "delete",
     className: "comment__btn comment__btn--delete",
-    onClick: handleOnClickDelete
+    onClick: handleOnClick
   }, /*#__PURE__*/react.createElement("img", {
     src: icon_delete,
     alt: "",
     className: "comment__btn-icon"
   }), "Delete"), /*#__PURE__*/react.createElement("button", {
     type: "button",
+    name: "edit",
     className: "comment__btn comment__btn--edit",
-    onClick: handleOnClickEdit
+    onClick: handleOnClick
   }, /*#__PURE__*/react.createElement("img", {
     src: icon_edit,
     alt: "",
     className: "comment__btn-icon"
   }), "Edit")) : /*#__PURE__*/react.createElement("button", {
     type: "button",
+    name: "reply",
     className: "comment__btn comment__btn--reply",
-    onClick: handleOnClickReply
+    onClick: handleOnClick
   }, /*#__PURE__*/react.createElement("img", {
     src: icon_reply,
     alt: "",

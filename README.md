@@ -25,13 +25,8 @@ List the ready features here:
 - editing own comments and replies
 - deleting own comments/replies
 - popup after click "delete" to confirm deleting
-
-## Room for Improvement
-
-To do:
-
-- handle adding ratings
+- adding ratings to comments/replies
 
 ## Project Status
 
-Project is: _in progress_.
+Project is: _finished_.
